@@ -1,0 +1,107 @@
+# CMake build artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+build.ninja
+rules.ninja
+.ninja_deps
+.ninja_log
+
+# Build directories
+build/
+Build/
+out/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+
+# Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# IDE and editor files
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Package managers
+conan.lock
+vcpkg_installed/
+
+# Coverage files
+*.gcov
+*.gcda
+*.gcno
+coverage.info
+coverage/
+
+# Sanitizer output
+*.san
+
+# Valgrind output
+*.valgrind
+
+# Profiling data
+*.prof
+gmon.out
+
+# Temporary files
+*.tmp
+*.temp
+*.log
