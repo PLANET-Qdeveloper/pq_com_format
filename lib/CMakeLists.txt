@@ -12,13 +12,13 @@ set(PQ_COM_FORMAT_PRIVATE_HEADERS
     src/internal.h
 )
 
-add_library(pq_com_format 
+add_library(pq_com_format
     ${PQ_COM_FORMAT_SOURCES}
     ${PQ_COM_FORMAT_HEADERS}
     ${PQ_COM_FORMAT_PRIVATE_HEADERS}
 )
 
-target_include_directories(pq_com_format 
+target_include_directories(pq_com_format
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

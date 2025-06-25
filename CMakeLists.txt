@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(pq_com_format 
+project(pq_com_format
     VERSION 1.0.0
     DESCRIPTION "Communication decode and encode library"
     LANGUAGES C ASM
@@ -35,11 +35,15 @@ include(GNUInstallDirs)
 
 add_subdirectory(lib)
 
+target_include_directories(pq_com_format PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/include>
+    $<INSTALL_INTERFACE:include>
+)
+
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
-
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
