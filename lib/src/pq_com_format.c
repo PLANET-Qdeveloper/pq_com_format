@@ -157,7 +157,7 @@ pq_com_format_result_t pq_com_format_clear(pq_com_format_t *packet) {
 pq_com_format_result_t pq_com_format_set(pq_com_format_t *packet,
                                          const uint8_t *payload,
                                          uint16_t payload_size) {
-  if (!packet) {
+  if (!packet || !payload) {
     return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
   }
 
@@ -165,14 +165,10 @@ pq_com_format_result_t pq_com_format_set(pq_com_format_t *packet,
     return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
   }
 
-  if (payload && payload_size > sizeof(packet->payload.data)) {
-    return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
-  }
-
   packet->length = payload_size;
   pq_com_format_buffer_clear(&packet->payload);
 
-  if (payload && payload_size > 0) {
+  if (payload_size > 0) {
     memcpy(packet->payload.data, payload, payload_size);
     packet->payload.size = payload_size;
   }
