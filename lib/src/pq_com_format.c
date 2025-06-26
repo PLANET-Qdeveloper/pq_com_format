@@ -1,58 +1,58 @@
 #include "pq_com_format/pq_com_format.h"
-#include "internal.h"
+
 #include <string.h>
 
-const char* pq_com_format_version_string(void) {
-    return "1.0.0";
-}
+#include "internal.h"
 
-uint32_t pq_com_format_version_number(void) {
-    return PQ_COM_FORMAT_VERSION;
-}
+const char *pq_com_format_version_string(void) { return "1.0.0"; }
 
-const char* pq_com_format_result_string(pq_com_format_result_t result) {
-    switch (result) {
-        case PQ_COM_FORMAT_SUCCESS:
-            return "Success";
-        case PQ_COM_FORMAT_ERROR_INVALID_PARAM:
-            return "Invalid parameter";
-        case PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL:
-            return "Buffer too small";
-        case PQ_COM_FORMAT_ERROR_INVALID_FORMAT:
-            return "Invalid format";
-        case PQ_COM_FORMAT_ERROR_MEMORY:
-            return "Memory error";
-        case PQ_COM_FORMAT_ERROR_CHECKSUM:
-            return "Checksum error";
-        default:
-            return "Unknown error";
-    }
+uint32_t pq_com_format_version_number(void) { return PQ_COM_FORMAT_VERSION; }
+
+const char *pq_com_format_result_string(pq_com_format_result_t result) {
+  switch (result) {
+  case PQ_COM_FORMAT_SUCCESS:
+    return "Success";
+  case PQ_COM_FORMAT_ERROR_INVALID_PARAM:
+    return "Invalid parameter";
+  case PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL:
+    return "Buffer too small";
+  case PQ_COM_FORMAT_ERROR_INVALID_FORMAT:
+    return "Invalid format";
+  case PQ_COM_FORMAT_ERROR_MEMORY:
+    return "Memory error";
+  case PQ_COM_FORMAT_ERROR_CHECKSUM:
+    return "Checksum error";
+  default:
+    return "Unknown error";
+  }
 }
 
 void pq_com_format_buffer_init(pq_com_format_buffer_t *buffer) {
-    if (buffer) {
-        buffer->size = 0;
-        buffer->capacity = PQ_COM_FORMAT_MAX_PACKET_SIZE;
-        memset(buffer->data, 0, sizeof(buffer->data));
-    }
+  if (buffer) {
+    buffer->size = 0;
+    buffer->capacity = PQ_COM_FORMAT_MAX_PACKET_SIZE;
+    memset(buffer->data, 0, sizeof(buffer->data));
+  }
 }
 
 void pq_com_format_buffer_clear(pq_com_format_buffer_t *buffer) {
-    if (buffer) {
-        buffer->size = 0;
-    }
+  if (buffer) {
+    buffer->size = 0;
+  }
 }
 
-pq_com_format_result_t pq_com_format_buffer_ensure_capacity(pq_com_format_buffer_t *buffer, size_t required_size) {
-    if (!buffer) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    if (required_size > buffer->capacity) {
-        return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
-    }
-    
-    return PQ_COM_FORMAT_SUCCESS;
+pq_com_format_result_t
+pq_com_format_buffer_ensure_capacity(pq_com_format_buffer_t *buffer,
+                                     size_t required_size) {
+  if (!buffer) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
+
+  if (required_size > buffer->capacity) {
+    return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
+  }
+
+  return PQ_COM_FORMAT_SUCCESS;
 }
 
 // CRC32 lookup table (IEEE 802.3 polynomial: 0xEDB88320)
@@ -99,176 +99,191 @@ static const uint32_t crc32_table[256] = {
     0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5, 0x47B2CF7F, 0x30B5FFE9,
     0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693,
     0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
-    0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
-};
+    0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D};
 
 uint32_t pq_com_format_calculate_checksum(const uint8_t *data, size_t size) {
-    if (!data || size == 0) {
-        return 0;
-    }
-    
-    uint32_t crc = 0xFFFFFFFF;
-    
-    for (size_t i = 0; i < size; i++) {
-        uint8_t table_index = (crc ^ data[i]) & 0xFF;
-        crc = (crc >> 8) ^ crc32_table[table_index];
-    }
-    
-    return ~crc;
+  if (!data || size == 0) {
+    return 0;
+  }
+
+  uint32_t crc = 0xFFFFFFFF;
+
+  for (size_t i = 0; i < size; i++) {
+    uint8_t table_index = (crc ^ data[i]) & 0xFF;
+    crc = (crc >> 8) ^ crc32_table[table_index];
+  }
+
+  return ~crc;
 }
 
-pq_com_format_result_t pq_com_format_init(pq_com_format_t *packet, uint8_t *payload, uint16_t payload_size) {
-    if (!packet) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    if (payload_size > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
-        return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
-    }
-    
-    packet->version = PQ_COM_FORMAT_VERSION;
-    packet->length = payload_size;
-    pq_com_format_buffer_init(&packet->payload);
-    
-    if (payload && payload_size > 0) {
-        memcpy(packet->payload.data, payload, payload_size);
-        packet->payload.size = payload_size;
-    }
-    
-    packet->checksum = pq_com_format_calculate_checksum(packet->payload.data, packet->payload.size);
-    
-    return PQ_COM_FORMAT_SUCCESS;
+pq_com_format_result_t pq_com_format_init(pq_com_format_t *packet,
+                                          uint8_t *payload,
+                                          uint16_t payload_size) {
+  if (!packet || (payload_size > 0 && !payload)) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
+  if (payload_size > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
+    return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
+  }
+
+  packet->version = PQ_COM_FORMAT_VERSION;
+  packet->length = payload_size;
+  pq_com_format_buffer_init(&packet->payload);
+
+  if (payload && payload_size > 0) {
+    memcpy(packet->payload.data, payload, payload_size);
+    packet->payload.size = payload_size;
+  }
+
+  packet->checksum = pq_com_format_calculate_checksum(packet->payload.data,
+                                                      packet->payload.size);
+
+  return PQ_COM_FORMAT_SUCCESS;
 }
 
 pq_com_format_result_t pq_com_format_clear(pq_com_format_t *packet) {
-    if (!packet) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    packet->version = 0;
-    packet->length = 0;
-    pq_com_format_buffer_clear(&packet->payload);
-    packet->checksum = 0;
-    
-    return PQ_COM_FORMAT_SUCCESS;
+  if (!packet) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
+
+  packet->version = 0;
+  packet->length = 0;
+  pq_com_format_buffer_clear(&packet->payload);
+  packet->checksum = 0;
+
+  return PQ_COM_FORMAT_SUCCESS;
 }
 
-pq_com_format_result_t pq_com_format_set(pq_com_format_t *packet, const uint8_t *payload, uint16_t payload_size) {
-    if (!packet) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    if (payload_size > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
-        return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
-    }
-    
-    packet->length = payload_size;
-    pq_com_format_buffer_clear(&packet->payload);
-    
-    if (payload && payload_size > 0) {
-        memcpy(packet->payload.data, payload, payload_size);
-        packet->payload.size = payload_size;
-    }
-    
-    packet->checksum = pq_com_format_calculate_checksum(packet->payload.data, packet->payload.size);
-    
-    return PQ_COM_FORMAT_SUCCESS;
+pq_com_format_result_t pq_com_format_set(pq_com_format_t *packet,
+                                         const uint8_t *payload,
+                                         uint16_t payload_size) {
+  if (!packet || !payload) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
+
+  if (payload_size > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
+    return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
+  }
+
+  packet->length = payload_size;
+  pq_com_format_buffer_clear(&packet->payload);
+
+  if (payload_size > 0) {
+    memcpy(packet->payload.data, payload, payload_size);
+    packet->payload.size = payload_size;
+  }
+
+  packet->checksum = pq_com_format_calculate_checksum(packet->payload.data,
+                                                      packet->payload.size);
+
+  return PQ_COM_FORMAT_SUCCESS;
 }
 
-pq_com_format_result_t pq_com_format_encode(pq_com_format_t *packet, uint8_t *output, uint16_t output_size) {
-    if (!packet || !output) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    uint16_t required_size = sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) + packet->length + sizeof(uint32_t);
-    
-    if (output_size < required_size) {
-        return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
-    }
-    
-    uint8_t *ptr = output;
-    
-    // Magic number
-    uint32_t magic = PQ_COM_FORMAT_MAGIC;
-    memcpy(ptr, &magic, sizeof(uint32_t));
-    ptr += sizeof(uint32_t);
-    
-    // Version
-    memcpy(ptr, &packet->version, sizeof(uint16_t));
-    ptr += sizeof(uint16_t);
-    
-    // Length
-    memcpy(ptr, &packet->length, sizeof(uint16_t));
-    ptr += sizeof(uint16_t);
-    
-    // Payload
-    if (packet->length > 0) {
-        memcpy(ptr, packet->payload.data, packet->length);
-        ptr += packet->length;
-    }
-    
-    // Checksum
-    memcpy(ptr, &packet->checksum, sizeof(uint32_t));
-    
-    return PQ_COM_FORMAT_SUCCESS;
-}
+pq_com_format_result_t pq_com_format_encode(pq_com_format_t *packet,
+                                            uint8_t *output,
+                                            uint16_t output_size) {
+  if (!packet || !output) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
 
-pq_com_format_result_t pq_com_format_decode(pq_com_format_t *packet, const uint8_t *input, uint16_t input_size) {
-    if (!packet || !input) {
-        return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
-    }
-    
-    if (input_size < sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint32_t)) {
-        return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
-    }
-    
-    const uint8_t *ptr = input;
-    
-    // Check magic number
-    uint32_t magic;
-    memcpy(&magic, ptr, sizeof(uint32_t));
-    if (magic != PQ_COM_FORMAT_MAGIC) {
-        return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
-    }
-    ptr += sizeof(uint32_t);
-    
-    // Read version
-    memcpy(&packet->version, ptr, sizeof(uint16_t));
-    ptr += sizeof(uint16_t);
-    
-    // Read length
-    memcpy(&packet->length, ptr, sizeof(uint16_t));
-    ptr += sizeof(uint16_t);
-    
-    // Validate length
-    if (packet->length > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
-        return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
-    }
-    
-    uint16_t expected_size = sizeof(uint32_t) + sizeof(uint16_t) + sizeof(uint16_t) + packet->length + sizeof(uint32_t);
-    if (input_size < expected_size) {
-        return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
-    }
-    
-    // Read payload
-    pq_com_format_buffer_init(&packet->payload);
-    if (packet->length > 0) {
-        memcpy(packet->payload.data, ptr, packet->length);
-        packet->payload.size = packet->length;
-    }
+  if (packet->length > packet->payload.size) {
+    return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
+  }
+
+  uint16_t required_size =
+      PQ_COM_FORMAT_HEADER_SIZE + packet->length + PQ_COM_FORMAT_FOOTER_SIZE;
+
+  if (output_size < required_size) {
+    return PQ_COM_FORMAT_ERROR_BUFFER_TOO_SMALL;
+  }
+
+  uint8_t *ptr = output;
+
+  // Magic number
+  uint32_t magic = PQ_COM_FORMAT_MAGIC;
+  memcpy(ptr, &magic, sizeof(uint32_t));
+  ptr += sizeof(uint32_t);
+
+  // Version
+  memcpy(ptr, &packet->version, sizeof(uint16_t));
+  ptr += sizeof(uint16_t);
+
+  // Length
+  memcpy(ptr, &packet->length, sizeof(uint16_t));
+  ptr += sizeof(uint16_t);
+
+  // Payload
+  if (packet->length > 0) {
+    memcpy(ptr, packet->payload.data, packet->length);
     ptr += packet->length;
-    
-    // Read checksum
-    uint32_t received_checksum;
-    memcpy(&received_checksum, ptr, sizeof(uint32_t));
-    
-    // Verify checksum
-    uint32_t calculated_checksum = pq_com_format_calculate_checksum(packet->payload.data, packet->payload.size);
-    if (received_checksum != calculated_checksum) {
-        return PQ_COM_FORMAT_ERROR_CHECKSUM;
-    }
-    
-    packet->checksum = received_checksum;
-    
-    return PQ_COM_FORMAT_SUCCESS;
+  }
+
+  // Checksum
+  memcpy(ptr, &packet->checksum, sizeof(uint32_t));
+
+  return PQ_COM_FORMAT_SUCCESS;
+}
+
+pq_com_format_result_t pq_com_format_decode(pq_com_format_t *packet,
+                                            const uint8_t *input,
+                                            uint16_t input_size) {
+  if (!packet || !input) {
+    return PQ_COM_FORMAT_ERROR_INVALID_PARAM;
+  }
+
+  if (input_size < PQ_COM_FORMAT_HEADER_SIZE + PQ_COM_FORMAT_FOOTER_SIZE) {
+    return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
+  }
+
+  const uint8_t *ptr = input;
+
+  // Check magic number
+  uint32_t magic;
+  memcpy(&magic, ptr, sizeof(uint32_t));
+  if (magic != PQ_COM_FORMAT_MAGIC) {
+    return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
+  }
+  ptr += sizeof(uint32_t);
+
+  // Read version
+  memcpy(&packet->version, ptr, sizeof(uint16_t));
+  ptr += sizeof(uint16_t);
+
+  // Read length
+  memcpy(&packet->length, ptr, sizeof(uint16_t));
+  ptr += sizeof(uint16_t);
+
+  // Validate length
+  if (packet->length > PQ_COM_FORMAT_MAX_PACKET_SIZE) {
+    return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
+  }
+
+  uint16_t expected_size =
+      PQ_COM_FORMAT_HEADER_SIZE + packet->length + PQ_COM_FORMAT_FOOTER_SIZE;
+  if (input_size < expected_size) {
+    return PQ_COM_FORMAT_ERROR_INVALID_FORMAT;
+  }
+
+  // Read payload
+  pq_com_format_buffer_init(&packet->payload);
+  if (packet->length > 0) {
+    memcpy(packet->payload.data, ptr, packet->length);
+    packet->payload.size = packet->length;
+  }
+  ptr += packet->length;
+
+  // Read checksum
+  uint32_t received_checksum;
+  memcpy(&received_checksum, ptr, sizeof(uint32_t));
+
+  // Verify checksum
+  uint32_t calculated_checksum = pq_com_format_calculate_checksum(
+      packet->payload.data, packet->payload.size);
+  if (received_checksum != calculated_checksum) {
+    return PQ_COM_FORMAT_ERROR_CHECKSUM;
+  }
+
+  packet->checksum = received_checksum;
+
+  return PQ_COM_FORMAT_SUCCESS;
 }

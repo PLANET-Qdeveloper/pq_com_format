@@ -1,0 +1,4 @@
+BasedOnStyle: LLVM
+ColumnLimit: 200
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: NONE
