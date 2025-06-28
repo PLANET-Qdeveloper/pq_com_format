@@ -19,17 +19,17 @@ extern "C" {
  */
 typedef enum {
   /** 有効なデータをデコードした */
-  PQ_COM_FORMAT_VALID = 0,
+  PQ_COM_FORMAT_DECODE_VALID = 0,
   /** データのデコードが完了 */
-  PQ_COM_FORMAT_COMPLETED = 1,
+  PQ_COM_FORMAT_DECODE_COMPLETED = 1,
   /** ヘッダが無効 */
-  PQ_COM_FORMAT_ERROR_INVALID_HEADER = -1,
+  PQ_COM_FORMAT_DECODE_ERROR_INVALID_HEADER = -1,
   /** フッタが無効 */
-  PQ_COM_FORMAT_ERROR_INVALID_FOOTER = -2,
+  PQ_COM_FORMAT_DECODE_ERROR_INVALID_FOOTER = -2,
   /** チェックサムが無効 */
-  PQ_COM_FORMAT_ERROR_INVALID_CHECKSUM = -3,
+  PQ_COM_FORMAT_DECODE_ERROR_INVALID_CHECKSUM = -3,
   /** 未定義のエラー */
-  PQ_COM_FORMAT_ERROR_UNDEFINED = -255,
+  PQ_COM_FORMAT_DECODE_ERROR_UNDEFINED = -255,
 } pq_com_format_decode_result_t;
 
 /**
