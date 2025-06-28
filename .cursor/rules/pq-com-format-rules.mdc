@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
 # pq_com_format 開発ルール
@@ -35,4 +35,3 @@ alwaysApply: true
 ## その他
 
 - ファイル末尾には改行を入れる（警告回避のため）
-- チェックサム計算はCRC32（IEEE 802.3）を使用
