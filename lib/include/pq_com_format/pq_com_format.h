@@ -84,11 +84,6 @@ uint16_t pq_com_format_calculate_crc_checksum(uint8_t *data, uint16_t length);
 /** 
  * @fn
  * @brief パケットにデコードしたいデータを1byteずつこの関数に渡す。順次データがpacketに格納されていく。完了するとPQ_COM_FORMAT_COMPLETED = 1を返す。
- * @details
- * データがpacketに格納されていくと、データの長さがpacketのpayload_lengthに格納される。
- * データの長さがpacketのpayload_lengthに格納されると、データのCRCチェックサムが計算される。
- * データのCRCチェックサムが計算されると、データのCRCチェックサムがpacketのcrc_checksumに格納される。
- * データのCRCチェックサムがpacketのcrc_checksumに格納されると、データのCRCチェックサムがpacketのcrc_checksumに格納される。
  * @param packet デコードするパケット
  * @param input デコードするデータ
  * @return デコード結果: 成功: PQ_COM_FORMAT_VALID = 0, 完了: PQ_COM_FORMAT_COMPLETED = 1
@@ -100,13 +95,6 @@ pq_com_format_decode_result_t pq_com_format_decode(
 /** 
  * @fn
  * @brief パケットをエンコードする。実行するたびにパケットのデータを1byteずつエンコードする。完了するとPQ_COM_FORMAT_ENCODE_COMPLETED = 1を返す。
- * @details
- * パケットのデータを1byteずつエンコードする。
- * パケットのデータを1byteずつエンコードすると、パケットのデータの長さがpacketのpayload_lengthに格納される。
- * パケットのデータの長さがpacketのpayload_lengthに格納されると、パケットのデータのCRCチェックサムが計算される。
- * パケットのデータのCRCチェックサムが計算されると、パケットのデータのCRCチェックサムがpacketのcrc_checksumに格納される。
- * パケットのデータのCRCチェックサムがpacketのcrc_checksumに格納されると、パケットのデータのCRCチェックサムがpacketのcrc_checksumに格納される。
- * パケットのデータのCRCチェックサムがpacketのcrc_checksumに格納されると、パケットのデータのCRCチェックサムがpacketのcrc_checksumに格納される。
  * @param packet エンコードするパケット
  * @param output エンコードされたデータ
  * @return エンコード結果: 成功: PQ_COM_FORMAT_ENCODE_SUCCESS = 0, 完了: PQ_COM_FORMAT_ENCODE_COMPLETED = 1
