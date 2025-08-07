@@ -4,8 +4,6 @@ set(PQ_COM_FORMAT_SOURCES
 
 set(PQ_COM_FORMAT_HEADERS
     include/pq_com_format/pq_com_format.h
-    include/pq_com_format/types.h
-    include/pq_com_format/config.h
 )
 
 set(PQ_COM_FORMAT_PRIVATE_HEADERS
