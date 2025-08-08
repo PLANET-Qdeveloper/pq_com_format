@@ -1,4 +1,5 @@
 #include "pq_com_format/pq_com_format.h"
+#include "internal.h"
 #include <string.h>
 
 /**
@@ -8,8 +9,10 @@
  * 初期化します。新しいパケット処理を開始する前に必ず呼び出してください。
  */
 void pq_com_format_clear(pq_com_format_t *packet) {
-  memset(packet, 0, sizeof(pq_com_format_t));
-  packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
+  if (packet != NULL) {
+    memset(packet, 0, sizeof(pq_com_format_t));
+    packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
+  }
 }
 
 /**
@@ -23,12 +26,16 @@ void pq_com_format_clear(pq_com_format_t *packet) {
  * @return 計算されたCRC16値
  */
 uint16_t pq_com_format_calculate_crc_checksum(uint8_t *data, uint16_t length) {
+  if (data == NULL) {
+    return 0xFFFF;
+  }
+  
   uint16_t crc = 0xFFFF;
   for (uint16_t i = 0; i < length; i++) {
     crc ^= (uint16_t)data[i] << 8;
-    for (uint8_t j = 0; j < 8; j++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ 0x1021;
+    for (uint8_t j = 0; j < 8U; j++) {
+      if (crc & 0x8000U) {
+        crc = (crc << 1) ^ 0x1021U;
       } else {
         crc <<= 1;
       }
@@ -36,7 +43,6 @@ uint16_t pq_com_format_calculate_crc_checksum(uint8_t *data, uint16_t length) {
   }
   return crc;
 }
-
 
 /**
  * @brief 受信したバイトデータを段階的にデコードしてパケットを構築する
@@ -51,6 +57,10 @@ uint16_t pq_com_format_calculate_crc_checksum(uint8_t *data, uint16_t length) {
 pq_com_format_decode_result_t pq_com_format_decode(
     pq_com_format_t *packet, const uint8_t input) {
   uint8_t current_byte = input;
+
+  if (packet == NULL) {
+    return PQ_COM_FORMAT_DECODE_ERROR_UNDEFINED;
+  }
 
   /* スタートマーカー待ち状態での処理 */
   if (packet->decode_state == PQ_COM_FORMAT_DECODE_STATE_WAIT_START) {
@@ -161,6 +171,10 @@ pq_com_format_decode_result_t pq_com_format_decode(
  */
 pq_com_format_encode_result_t pq_com_format_encode(
     pq_com_format_t *packet, uint8_t *output) {
+
+  if (packet == NULL || output == NULL) {
+    return PQ_COM_FORMAT_ENCODE_ERROR_UNDEFINED;
+  }
   
   /* スタッフィング処理が有効な場合、スタッフィングされたバイトを出力 */
   if (packet->stuffing_active) {
@@ -170,8 +184,8 @@ pq_com_format_encode_result_t pq_com_format_encode(
   }
 
   uint8_t byte_to_encode;
-  uint16_t payload_len = packet->payload_length;
-  uint16_t frame_len_without_markers = 3 + payload_len + 2;  /* dest_id + src_id + len + payload + crc(2) */
+  const uint16_t payload_len = packet->payload_length;
+  const uint16_t frame_len_without_markers = 3U + payload_len + 2U;  /* dest_id + src_id + len + payload + crc(2) */
 
   /* 最初の呼び出し時：スタートマーカーを出力し、CRCを計算 */
   if (packet->index == 0) {
@@ -190,7 +204,7 @@ pq_com_format_encode_result_t pq_com_format_encode(
   }
 
   /* エンコード対象バイトの選択（現在位置に基づく） */
-  uint16_t current_pos = packet->index - 1;
+  const uint16_t current_pos = packet->index - 1U;
   if (current_pos == 0) {
     /* 宛先ID */
     byte_to_encode = packet->destination_id;
@@ -200,10 +214,10 @@ pq_com_format_encode_result_t pq_com_format_encode(
   } else if (current_pos == 2) {
     /* ペイロード長 */
     byte_to_encode = packet->payload_length;
-  } else if (current_pos < 3 + payload_len) {
+  } else if (current_pos < 3U + payload_len) {
     /* ペイロードデータ */
-    byte_to_encode = packet->payload[current_pos - 3];
-  } else if (current_pos == 3 + payload_len) {
+    byte_to_encode = packet->payload[current_pos - 3U];
+  } else if (current_pos == 3U + payload_len) {
     /* CRCチェックサムの上位バイト */
     byte_to_encode = (uint8_t)(packet->crc_checksum >> 8);
   } else { 
@@ -230,3 +244,7 @@ pq_com_format_encode_result_t pq_com_format_encode(
   packet->index++;
   return PQ_COM_FORMAT_ENCODE_SUCCESS;
 }
+
+/* Note: Reset functions not needed for struct-based stateful approach
+ * State is managed per packet instance in the struct itself
+ */

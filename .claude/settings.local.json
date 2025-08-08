@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

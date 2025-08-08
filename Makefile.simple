@@ -1,0 +1,48 @@
+# Simple Makefile for testing without CMake
+# Usage: make -f Makefile.simple
+
+CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -O2
+INCLUDES = -Ilib/include
+SRCDIR = lib/src
+TESTDIR = tests
+
+# Source files
+SOURCES = $(SRCDIR)/pq_com_format.c
+TEST_SOURCES = $(TESTDIR)/test_pq_com_format.c
+
+# Object files
+OBJECTS = $(SOURCES:.c=.o)
+TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
+
+# Targets
+TARGET = test_pq_com_format
+
+.PHONY: all clean test
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS) $(TEST_OBJECTS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+test: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(OBJECTS) $(TEST_OBJECTS) $(TARGET)
+
+# Debug build
+debug: CFLAGS += -g -DDEBUG
+debug: $(TARGET)
+
+# Static analysis
+lint:
+	@echo "Run 'cppcheck --std=c99 lib/src/' for static analysis"
+
+# Documentation
+doc:
+	@echo "Source files documented with Doxygen-style comments"
+	@echo "Key functions: pq_com_format_encode(), pq_com_format_decode()"
