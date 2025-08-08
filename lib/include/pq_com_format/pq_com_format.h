@@ -102,6 +102,18 @@ pq_com_format_decode_result_t pq_com_format_decode(
 pq_com_format_encode_result_t pq_com_format_encode(
     pq_com_format_t *packet, uint8_t *output);
 
+/** 
+ * @fn
+ * @brief デコード状態をリセットする（マルチスレッド環境向け）
+ */
+void pq_com_format_reset_decode_state(void);
+
+/** 
+ * @fn
+ * @brief エンコード状態をリセットする（マルチスレッド環境向け）
+ */
+void pq_com_format_reset_encode_state(void);
+
 #ifdef __cplusplus
 }
 #endif
