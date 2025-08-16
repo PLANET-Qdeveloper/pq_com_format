@@ -28,7 +28,7 @@ void test_crc_calculation(void) {
     uint16_t crc = pq_com_format_calculate_crc_checksum(test_data, 5);
     assert(crc != 0);
     
-    uint8_t empty_data[] = {};
+    uint8_t empty_data[255] = {0};
     uint16_t empty_crc = pq_com_format_calculate_crc_checksum(empty_data, 0);
     assert(empty_crc == 0xFFFF);
     
