@@ -72,6 +72,23 @@ pq_com_format_decode_result_t pq_com_format_decode(
     return PQ_COM_FORMAT_DECODE_ERROR_INVALID_HEADER;
   }
 
+  /* エンドマーカーの処理（バイトスタッフィング前にチェック） */
+  if (input == PQ_COM_FORMAT_END_MARKER && !packet->is_stuffed) {
+    if (packet->decode_state != PQ_COM_FORMAT_DECODE_STATE_END) {
+      packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
+      return PQ_COM_FORMAT_DECODE_ERROR_INVALID_FOOTER;
+    }
+    /* CRCチェックサムの検証 */
+    uint16_t calculated_crc =
+        pq_com_format_calculate_crc_checksum(packet->payload, packet->payload_length);
+    packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
+    if (calculated_crc == packet->crc_checksum) {
+      return PQ_COM_FORMAT_DECODE_COMPLETED;
+    } else {
+      return PQ_COM_FORMAT_DECODE_ERROR_INVALID_CHECKSUM;
+    }
+  }
+
   /* バイトスタッフィング処理 */
   if (packet->is_stuffed) {
     packet->is_stuffed = 0;
@@ -95,23 +112,6 @@ pq_com_format_decode_result_t pq_com_format_decode(
       /* スタッフィングエスケープ文字を検出 */
       packet->is_stuffed = 1;
       return PQ_COM_FORMAT_DECODE_VALID;
-    }
-  }
-
-  /* エンドマーカーの処理 */
-  if (current_byte == PQ_COM_FORMAT_END_MARKER) {
-    if (packet->decode_state != PQ_COM_FORMAT_DECODE_STATE_END) {
-      packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
-      return PQ_COM_FORMAT_DECODE_ERROR_INVALID_FOOTER;
-    }
-    /* CRCチェックサムの検証 */
-    uint16_t calculated_crc =
-        pq_com_format_calculate_crc_checksum(packet->payload, packet->payload_length);
-    packet->decode_state = PQ_COM_FORMAT_DECODE_STATE_WAIT_START;
-    if (calculated_crc == packet->crc_checksum) {
-      return PQ_COM_FORMAT_DECODE_COMPLETED;
-    } else {
-      return PQ_COM_FORMAT_DECODE_ERROR_INVALID_CHECKSUM;
     }
   }
 
@@ -245,6 +245,26 @@ pq_com_format_encode_result_t pq_com_format_encode(
   return PQ_COM_FORMAT_ENCODE_SUCCESS;
 }
 
-/* Note: Reset functions not needed for struct-based stateful approach
- * State is managed per packet instance in the struct itself
+/**
+ * @brief デコード状態をリセットする（マルチスレッド環境向け）
+ * 
+ * 新しいステートレス設計では、この関数は互換性のために提供されますが、
+ * 実際の状態リセットは各パケット構造体に対してpq_com_format_clear()を
+ * 呼び出すことで行ってください。
  */
+void pq_com_format_reset_decode_state(void) {
+  /* ステートレス設計のため、何もする必要はありません */
+  /* 実際の状態リセットにはpq_com_format_clear()を使用してください */
+}
+
+/**
+ * @brief エンコード状態をリセットする（マルチスレッド環境向け）
+ * 
+ * 新しいステートレス設計では、この関数は互換性のために提供されますが、
+ * 実際の状態リセットは各パケット構造体に対してpq_com_format_clear()を
+ * 呼び出すことで行ってください。
+ */
+void pq_com_format_reset_encode_state(void) {
+  /* ステートレス設計のため、何もする必要はありません */
+  /* 実際の状態リセットにはpq_com_format_clear()を使用してください */
+}

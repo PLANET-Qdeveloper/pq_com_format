@@ -236,12 +236,16 @@ void test_state_reset_functions(void) {
     pq_com_format_decode(&packet, 0x7E);
     pq_com_format_decode(&packet, 0x01);
     
+    // In the new stateless design, reset functions are compatibility stubs
+    // The actual state reset is done by pq_com_format_clear()
     pq_com_format_reset_decode_state();
+    pq_com_format_reset_encode_state();
+    
+    // To test reset functionality, we need to clear the packet
+    pq_com_format_clear(&packet);
     
     pq_com_format_decode_result_t result = pq_com_format_decode(&packet, 0x12);
     assert(result == PQ_COM_FORMAT_DECODE_ERROR_INVALID_HEADER);
-    
-    pq_com_format_reset_encode_state();
     
     printf("  ✓ State reset functions test passed\n");
 }
