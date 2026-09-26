@@ -11,10 +11,10 @@ alwaysApply: true
 
 ## ディレクトリ構成
 
-- `lib/include/pq_com_format/` : 公開ヘッダファイル群（API定義）
-- `lib/src/` : 実装ファイル
-- `lib/CMakeLists.txt` : ライブラリビルド設定
-- `tests/` : テストコード（未作成の場合あり）
+- `c/lib/include/pq_com_format/` : 公開ヘッダファイル群（API定義）
+- `c/lib/src/` : 実装ファイル
+- `c/lib/CMakeLists.txt` : ライブラリビルド設定
+- `c/tests/` : テストコード（未作成の場合あり）
 
 ## コーディングルール
 

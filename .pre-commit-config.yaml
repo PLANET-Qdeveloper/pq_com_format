@@ -10,4 +10,28 @@ repos:
     hooks:
       - id: clang-format
         args: ["--style=LLVM"]
-        files: \.(c|h)$
+        files: ^c/.*\.(c|h)$
+
+# Rust用（rust内でcargoコマンド実行する）
+
+  - repo: local
+    hooks:
+      # コードの整形
+      - id: cargo-fmt
+        name: cargo fmt (rust_lib)
+        description: Format Rust code with cargo fmt
+        # --manifest-path でrustフォルダ内の Cargo.toml を直接指定
+        entry: cargo fmt --manifest-path rust/Cargo.toml -- --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      # 静的解析
+      - id: cargo-clippy
+        name: cargo clippy (rust_lib)
+        description: Lint Rust code with cargo clippy
+        # --manifest-path でrustフォルダ内の Cargo.toml を直接指定する
+        entry: cargo clippy --manifest-path rust/Cargo.toml --all-targets --all-features -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
