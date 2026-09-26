@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/PLANET-Qdeveloper/pq_com_format/spec/downlink.schema.json",
+    "title": "space-balloon-communication-format downlink data table",
+    "description": "pq_com_format のパケット(宛先ID/送信元ID/TLVタグ)をバックエンドで解釈するための対応表",
+    "type": "object",
+    "required": ["未定"], 
+    "additionalProperties": false,
+    "properties": {
+
+    },
+    "$defs": {
+
+    }
+}

@@ -105,3 +105,6 @@ gmon.out
 *.tmp
 *.temp
 *.log
+
+# Rust
+target/

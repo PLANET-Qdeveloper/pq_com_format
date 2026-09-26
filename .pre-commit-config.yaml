@@ -12,8 +12,7 @@ repos:
         args: ["--style=LLVM"]
         files: ^c/.*\.(c|h)$
 
-# Rust用（rust内でcargoコマンド実行する）
-
+# 以下Rust用（rust内でcargoコマンド実行する）
   - repo: local
     hooks:
       # コードの整形

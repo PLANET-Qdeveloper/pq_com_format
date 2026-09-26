@@ -1,0 +1,28 @@
+# ダウンリンデータ対応表
+# ※例
+
+spec_version: 0.1.0
+
+nodes:
+  - id: 0x01
+    name: ground_station
+    description: 地上局
+  - id: 0x10
+    name: main1
+    description: メイン電装（ペイロード側）
+
+tags:
+  - tag: 0x01
+    name: pressure
+    type: u32
+    unit: Pa
+    sources: [main1]
+    description: MS5611の気圧
+
+  - tag: 0x02
+    name: temperature
+    type: i16
+    unit: degC
+    scale: 0.01
+    sources: [main1]
+    description: MS5611の温度
