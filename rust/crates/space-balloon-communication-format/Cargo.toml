@@ -1,6 +1,6 @@
 [package]
-name = "pq-com-format"
-description = "PQ通信フォーマットののエンコード・デコード"
+name = "space-balloon-communication-format"
+description = "スペースバルーン通信フォーマットのエンコード・デコード"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
